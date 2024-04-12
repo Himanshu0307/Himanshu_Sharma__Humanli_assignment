@@ -1,12 +1,13 @@
-import {authContext} from '../../Context/AuthContext'
-import {useNavigator} from 'react-router-dom';   
-export default  MainOutlet = () => {
+import { useEffect,useContext } from 'react';
+import {Outlet, useNavigate, useNavigator} from 'react-router-dom';
+import { authContext } from '../../context/AuthContext';   
+export default function MainOutlet() {
     const [currentUser] = useContext(authContext);
-    const navigate=useNavigator();
+    const navigate=useNavigate();
     useEffect(() => {
         if (!currentUser) {
             navigate("/login");
         }
-    }, [currentUser]);
+    }, [currentUser,navigate]);
     return <Outlet />;
 }

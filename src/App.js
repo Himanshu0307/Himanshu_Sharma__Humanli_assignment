@@ -1,9 +1,8 @@
-import { BrowserRouter, Outlet, useRoutes } from 'react-router-dom';
+import { BrowserRouter, useRoutes } from 'react-router-dom';
 import Login from './pages/Login/Login'
 import Register from './pages/Register/Register';
-import { useContext } from 'react';
-import { authContext } from './Context/AuthContext'
-import { MainOutlet } from './pages/Outlets/MainLayout';
+import { AuthProvider } from './context/AuthContext';
+import  MainOutlet  from './pages/Outlets/MainLayout';
 
 function App() {
 
