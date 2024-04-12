@@ -1,24 +1,27 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
-// import { useAuth } from "../../contexts/AuthContext";
-
 import { useForm } from "react-hook-form";
+import { authContext } from "../../context/AuthContext";
+import { login } from '../../api/user';
 
 export default function Login() {
   const navigate = useNavigate();
   const { formState: { errors }, register, handleSubmit } = useForm();
   const [loading, setLoading] = useState(false);
 
-
-  // useEffect(() => {
-  // if (currentUser) {
-  //   navigate("/");
-  // }
-  // }, [currentUser, navigate]);
+  const [currentUser, setUser] = useContext(authContext);
 
   const loginFun = (formData) => {
-    console.log("Form Data", formData);
+    // console.log("Form Data", formData);
+    login(formData).then((res) => {
+      if (!res.errors) {
+        setUser(res.data.email)
+        navigate('/profile')
+      }
+    }
+    );
+
+
   }
 
 

@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 
-// import { useAuth } from "../../contexts/AuthContext";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -10,15 +9,6 @@ export default function Register() {
 
 
   const [loading, setLoading] = useState(false);
-
-  // const { currentUser, register, setError } = useAuth();
-
-  // useEffect(() => {
-  //   if (currentUser) {
-  //     navigate("/");
-  //   }
-  // }, [currentUser, navigate]);
-
   const submitFun = (formData) => {
     if (formData.password !== formData.confirm) {
       setError('confirm', { message: "Password does not match" })

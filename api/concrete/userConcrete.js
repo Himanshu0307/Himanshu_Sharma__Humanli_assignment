@@ -1,40 +1,38 @@
-import db from "../config/firebase.js";
-import { addDoc, collection, getDocs ,setDoc} from "firebase/firestore";
+const auth = require('../config/firebase')
+const {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+} = require("firebase/auth");
 
 
-// const user = { fullName, email, password };
 
-async function createUser(userModel) {
-    // assert(typeof (user) == typeof (userModel))
-    try {
-        await setDoc(collection(db, "users",userModel.email), {
-            fullName: "",
-            email: "",
-            password: ""
-        },);
+async function createUser({ email, password }) {
+  try{
 
-       return true;
-    } catch (e) {
-        return false;;
-    }
+    return await createUserWithEmailAndPassword(auth, email, password);
+  }
+  catch(error) {
+    return null;
+  }
 
 }
 
-async function getUserList() {
-    const querySnapshot = await getDocs(collection(db, "users"));
-    return querySnapshot.map((doc) => {
-       let {fullName,email}=  doc.data();
-       return {fullName,email};
-    });
+async function loginUser({ email, password }) {
+  try{
+    return signInWithEmailAndPassword(auth, email, password);
+
+  }
+  catch(e){
+    return null;
+  }
+  
+}
+
+async function logout() {
+  return await signOut(auth);
 }
 
 
 
-
-
-async function verifyUser({email,password}){
-    const querySnapshot = await getDocs(collection(db, "users"));
-    return querySnapshot.map(x=>x.data()).some(y=>y.email===email && y.password===password);
-}
-
-module.exports={createUser,getUserList,verifyUser};
+module.exports = { createUser, createUser, loginUser, logout };
