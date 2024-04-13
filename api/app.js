@@ -3,6 +3,7 @@ var express = require('express');
 var userRouter = require('./controller/user');
 var cors=require('cors');
 const { Server } = require("socket.io");
+const { createMessage ,getAllMessage} = require("./concrete/chatConcrete");
 
 var app = express();
 app.use(cors())
@@ -42,6 +43,8 @@ socketIo.on("connection", (socket) => {
 
   socket.on("sendMessage", ({ senderId, receiverId, message }) => {
     const sendUserSocket = global.onlineUsers.get(receiverId);
+    // Save Messsage
+    createMessage()
     if (sendUserSocket) {
       socket.to(sendUserSocket).emit("getMessage", {
         senderId,
@@ -54,4 +57,12 @@ socketIo.on("connection", (socket) => {
     global.onlineUsers.delete(getKey(global.onlineUsers, socket.id));
     socket.emit("getUsers", Array.from(global.onlineUsers));
   });
+});
+
+// createMessage("sdfsdfsdf",{message:"Asdasd",createdAt:Date.now(),sender:'asdasd',receiver:'sdfsdfdf'})
+createMessage("sdfsdfsdf",{
+  message: 'Hello, this is a test message.',
+  createdAt: new Date().toISOString(),
+  sender: 'user123',
+  receiver: 'friend456'
 });
