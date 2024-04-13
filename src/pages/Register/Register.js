@@ -1,19 +1,42 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
+import { register as registerapi } from "../../api/user";
+import useAuth from "../../hooks/useAuth";
+import { ToastCTx } from "../../context/ToastProvider";
+
 
 
 export default function Register() {
   const navigate = useNavigate();
   const { handleSubmit, formState: { errors }, setError, register } = useForm();
+  const [currentUser, setUser] = useAuth();
+  const { success, error } = useContext(ToastCTx)
+
+  useEffect(() => { }, [currentUser])
 
 
-  const [loading, setLoading] = useState(false);
-  const submitFun = (formData) => {
+  const submitFun = async (formData) => {
     if (formData.password !== formData.confirm) {
       setError('confirm', { message: "Password does not match" })
+      return null;
     }
-    console.log(formData);
+    console.log(formData)
+    registerapi(formData).then((res) => {
+
+      if (!res.errors) {
+        setUser({ email: res.data.email })
+        success("Successfully Login")
+        navigate('/profile')
+      }
+    }, (err) => {
+      error(err.response.data.message)
+    }
+    );
+
+
+
+
   }
 
   return (
@@ -69,7 +92,7 @@ export default function Register() {
           <div>
             <button
               type="submit"
-              disabled={loading}
+
               className=" w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-sky-800 hover:bg-sky-900"
             >
               Register

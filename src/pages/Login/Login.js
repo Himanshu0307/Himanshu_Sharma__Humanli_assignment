@@ -1,27 +1,33 @@
 import { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { authContext } from "../../context/AuthContext";
 import { login } from '../../api/user';
+import useAuth from '../../hooks/useAuth'
+import { ToastCTx } from "../../context/ToastProvider";
 
 export default function Login() {
   const navigate = useNavigate();
   const { formState: { errors }, register, handleSubmit } = useForm();
-  const [loading, setLoading] = useState(false);
-
-  const [currentUser, setUser] = useContext(authContext);
+  const [currentUser, setUser] = useAuth();
+  const { error, success } = useContext(ToastCTx)
 
   const loginFun = (formData) => {
-    // console.log("Form Data", formData);
+
     login(formData).then((res) => {
+      console.log(res.data.data)
       if (!res.errors) {
-        setUser(res.data.email)
+        setUser({email:res.data.data})
+        success("Successfully login")
         navigate('/profile')
+      } else {
+        error(res.error)
       }
+    }, (eor) => {
+      console.log(eor.response.data.message)
+      error(eor.response.data.message)
+
     }
     );
-
-
   }
 
 
@@ -64,7 +70,7 @@ export default function Login() {
           <div>
             <button
               type="submit"
-              disabled={loading}
+
               className=" w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-sky-800 hover:bg-sky-900"
             >
               Login

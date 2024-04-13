@@ -1,7 +1,8 @@
 require("dotenv").config();
 var express = require('express');
 var userRouter = require('./controller/user');
-var cors=require('cors')
+var cors=require('cors');
+const { Server } = require("socket.io");
 
 var app = express();
 app.use(cors())
@@ -12,24 +13,45 @@ app.use('/user',userRouter)
 
 
 
-// // catch 404 and forward to error handler
-// app.use(function (req, res, next) {
-//   next(createError(404));
-// });
 
-// // error handler
-// app.use(function (err, req, res, next) {
-//   // set locals, only providing error in development
-//   res.locals.message = err.message;
-//   res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-//   // render the error page
-//   res.status(err.status || 500);
-//   res.render('error');
-// });
-
-// module.exports = app;
-
-app.listen(5001,()=>{
+var server=app.listen(5001,()=>{
   console.log("App running on port 5001 ")
 })
+
+var socketIo=new Server(server,{cors: {
+  origin: "http://localhost:3000",
+  credentials: false,
+},})
+
+
+global.onlineUsers = new Map();
+
+const getKey = (map, val) => {
+  for (let [key, value] of map.entries()) {
+    if (value === val) return key;
+  }
+};
+
+socketIo.on("connection", (socket) => {
+  global.chatSocket = socket;
+
+  socket.on("addUser", (userId) => {
+    global.onlineUsers.set(userId, socket.id);
+    socket.emit("getUsers", Array.from(global.onlineUsers));
+  });
+
+  socket.on("sendMessage", ({ senderId, receiverId, message }) => {
+    const sendUserSocket = global.onlineUsers.get(receiverId);
+    if (sendUserSocket) {
+      socket.to(sendUserSocket).emit("getMessage", {
+        senderId,
+        message,
+      });
+    }
+  });
+
+  socket.on("disconnect", () => {
+    global.onlineUsers.delete(getKey(global.onlineUsers, socket.id));
+    socket.emit("getUsers", Array.from(global.onlineUsers));
+  });
+});

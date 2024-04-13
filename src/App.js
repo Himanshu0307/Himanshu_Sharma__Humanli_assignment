@@ -3,15 +3,19 @@ import Login from './pages/Login/Login'
 import Register from './pages/Register/Register';
 import { AuthProvider } from './context/AuthContext';
 import  MainOutlet  from './pages/Outlets/MainLayout';
-import { MainUI } from './pages/Chat/mainUI';
+import ChatLayout from './pages/layouts/ChatLayout';
+import { ToastProvider } from './context/ToastProvider';
+import RouteGuard from './pages/layouts/RouteGuard';
 
 function App() {
 
   return (
     <AuthProvider>
+      <ToastProvider>
       <BrowserRouter>
         <Router />
       </BrowserRouter>
+      </ToastProvider>
     </AuthProvider>
   );
 }
@@ -27,8 +31,8 @@ function Router() {
       children: [
         { path: "/", element: <Login /> },
         { path: "login", element: <Login /> },
-        { path: "register", element: <Register /> },
-        {path:"profile",element:<MainUI />}
+        { path: "register", element: <Register />, },
+        {path:"profile",element:<RouteGuard children={<ChatLayout></ChatLayout>}/>}
       ]
       
     }
