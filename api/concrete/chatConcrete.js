@@ -1,15 +1,16 @@
 const { firestore } = require('../config/firebase-admin')
 
 
-function getRommIdFromEmail(u1,u2){
+function getRommIdFromEmail(u1, u2) {
     const sortedIds = [u1, u2].sort();
     return `${sortedIds[0]}-${sortedIds[1]}`;
 
 }
 
 
- async function getAllMessage(roomId) {
+async function getAllMessage(roomId) {
     const roomChat = await firestore.collection('chat').doc(roomId).listCollections();
+    console.log(roomChat)
     const list = [];
 
     for (const collectionRef of roomChat) {
@@ -24,8 +25,8 @@ function getRommIdFromEmail(u1,u2){
     return list;
 }
 
-  async function createMessage(roomId, messageObject) {
-    try{
+async function createMessage(roomId, messageObject) {
+    try {
 
         const collectionName = Date.now().toString(); // Create a unique collection name
         const roomRef = firestore.collection('chat').doc(roomId).collection(collectionName);
@@ -47,4 +48,4 @@ function getRommIdFromEmail(u1,u2){
 
 }
 
-module.exports={createMessage,getAllMessage}
+module.exports = { createMessage, getAllMessage }

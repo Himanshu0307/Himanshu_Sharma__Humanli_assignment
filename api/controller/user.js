@@ -10,7 +10,6 @@ router.post('/login', (req, res) => {
             if (!data) {
                 return res.status(409).send({ message: 'Credential not valid' })
             } else {
-                console.log(data)
                 res.cookie(`token`, data.user.getIdTokenResult(), { path: '/', maxAge: '3600' })
                 return res.status(200).json({ message: "Created Successfully", data: data.user.email })
             }
@@ -32,7 +31,6 @@ router.post('/register', async (req, res) => {
     try {
 
         let userData = await createUser(req.body);
-        console.log(userData, "userId");
         if (!userData) {
             return res.status(409).send({ message: 'Email already exists.' })
         } else {

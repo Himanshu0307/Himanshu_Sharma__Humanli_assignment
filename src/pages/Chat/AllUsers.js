@@ -1,12 +1,9 @@
-import { useState, useEffect } from "react";
 
-import { createChatRoom } from "../../services/ChatService";
-import Contact from "./Contact";
 import UserLayout from "../layouts/UserLayout";
+import getRommIdFromEmail from "../../utils/getRoomId";
+import { useEffect } from "react";
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
+
 
 export default function AllUsers({
   users,
@@ -14,30 +11,17 @@ export default function AllUsers({
   currentUser,
   changeChat,
 }) {
-  console.log(currentUser)
-  users=users.filter(x=>x.email!==currentUser.email);
-
-
-  const [selectedChat, setSelectedChat] = useState();
-  const changeCurrentChat = (index, chat) => {
-    setSelectedChat(index);
-    changeChat(chat);
-  };
-
+  useEffect(() => { }, [onlineUsersId])
+  users = users.filter(x => x.email !== currentUser.email);
   const handleNewChatRoom = async (user) => {
-    const members = {
-      senderId: currentUser.email,
-      receiverId: user.email,
-    };
-    // const res = await createChatRoom(members);
-    changeChat("fdgdfgfdgfdf");
+    changeChat(user);
   };
 
   return (
     <>
       <ul className="overflow-auto h-[30rem]">
         <h2 className="my-2 mb-2 ml-2 text-gray-900 dark:text-white">Chats</h2>
-       
+
         <li>
           {users.map((x, index) => (
             <div

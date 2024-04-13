@@ -1,25 +1,34 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 
 import { getMessagesOfChatRoom, sendMessage } from "../../services/ChatService";
 
 import Message from "./Message";
 import Contact from "./Contact";
 import ChatForm from "./ChatForm";
+import { getAllMessagesFromRoomId } from "../../api/chat";
+import { ToastCTx } from "../../context/ToastProvider";
+import Spinner from "../../components/Spinner";
 
-export default function ChatRoom({ currentChat, currentUser, socket }) {
+export default function ChatRoom({ currentRoom, currentUser, socket, receiver }) {
   const [messages, setMessages] = useState([]);
   const [incomingMessage, setIncomingMessage] = useState(null);
+  const [isLoading, setLoading] = useState(false);
+  const { error } = useContext(ToastCTx);
 
   const scrollRef = useRef();
 
+  //  get Mesages
   useEffect(() => {
-    const fetchData = async () => {
-      const res = await getMessagesOfChatRoom(currentChat._id);
-      setMessages(res);
-    };
-
-    fetchData();
-  }, [currentChat._id]);
+    setLoading((x) => true)
+    getAllMessagesFromRoomId(currentRoom).then(res => {
+      var messages = res.data.data
+      setMessages(messages);
+    }, (err) => {
+      error("Failed to fetch data")
+    }).finally(() => {
+      setLoading(false)
+    })
+  }, [currentRoom, error]);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({
@@ -41,37 +50,22 @@ export default function ChatRoom({ currentChat, currentUser, socket }) {
   }, [incomingMessage]);
 
   const handleFormSubmit = async (message) => {
-    const receiverId = currentChat.members.find(
-      (member) => member !== currentUser.uid
-    );
-
-    socket.current.emit("sendMessage", {
-      senderId: currentUser.uid,
-      receiverId: receiverId,
-      message: message,
-    });
-
-    const messageBody = {
-      chatRoomId: currentChat._id,
-      sender: currentUser.uid,
-      message: message,
-    };
-    const res = await sendMessage(messageBody);
-    setMessages([...messages, res]);
+    var messageBody = { message, createdAt: Date.now(), sender: currentUser.email, receiver: receiver.email }
+    socket.current?.emit("sendMessage", messageBody)
   };
 
   return (
     <div className="lg:col-span-2 lg:block">
       <div className="w-full">
         <div className="p-3 bg-white border-b border-gray-200 dark:bg-gray-900 dark:border-gray-700">
-          <Contact chatRoom={currentChat} currentUser={currentUser} />
+          {/* <Contact chatRoom={currentChat} currentUser={currentUser} /> */}
         </div>
 
         <div className="relative w-full p-6 overflow-y-auto h-[30rem] bg-white border-b border-gray-200 dark:bg-gray-900 dark:border-gray-700">
           <ul className="space-y-2">
-            {messages.map((message, index) => (
+            {isLoading ? <Spinner /> : messages.map((message, index) => (
               <div key={index} ref={scrollRef}>
-                <Message message={message} self={currentUser.uid} />
+                <Message message={message} self={currentUser.email} />
               </div>
             ))}
           </ul>
